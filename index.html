@@ -418,9 +418,9 @@
         }
 
         const skinsData = [
-            { id: 0, name: "Clássico Amarelo", price: 0 },
-            { id: 1, name: "Ninja Azul", price: 50 },
-            { id: 2, name: "Robô Cyber", price: 100 }
+            { id: 0, name: "Aviador Estelar", price: 0 },
+            { id: 1, name: "Ninja das Sombras", price: 50 },
+            { id: 2, name: "Andróide Cyber", price: 100 }
         ];
 
         let totalCoins = parseInt(localStorage.getItem("sky_hop_coins")) || 0;
@@ -567,7 +567,7 @@
                 p.moveSpeed = 1.2 + Math.random() * 0.8;
             }
 
-            if (Math.random() < 0.35) {
+            if (Math.random() < 0.40) {
                 coins.push({
                     parentPlatform: p,
                     offsetX: platformWidth / 2 - 8,
@@ -689,6 +689,7 @@
                 });
             }
 
+            // Atualiza a posição das moedas amarradas nas plataformas
             coins.forEach(coin => {
                 if (coin.parentPlatform) {
                     coin.x = coin.parentPlatform.x + coin.offsetX;
@@ -750,7 +751,8 @@
                         plat.isMoving = false;
                     }
 
-                    if (Math.random() < 0.35) {
+                    // Recria uma nova moeda vinculada à plataforma reciclada com chance garantida
+                    if (Math.random() < 0.40) {
                         coins.push({
                             parentPlatform: plat,
                             offsetX: platformWidth / 2 - 8,
@@ -829,40 +831,52 @@
             const ps = 3;
 
             if (player.skin === 0) {
-                ctx.fillStyle = "#ffcc00";
-                ctx.fillRect(-4 * ps, -3 * ps, 8 * ps, 7 * ps);
-                ctx.fillStyle = "#ff3333";
-                ctx.fillRect(-5 * ps, -5 * ps, 10 * ps, 2 * ps);
-                ctx.fillRect(-3 * ps, -6 * ps, 6 * ps, 1 * ps);
-                ctx.fillStyle = "#ffffff";
-                ctx.fillRect(-1 * ps, -5 * ps, 2 * ps, 1 * ps);
-                ctx.fillStyle = "#000000";
-                ctx.fillRect(0, -2 * ps, 2 * ps, 2 * ps);
-                ctx.fillStyle = "#ffffff";
+                // SKIN 0: Aventureiro / Aviador Estelar
+                ctx.fillStyle = "#8b4513"; // Chapéu marrom
+                ctx.fillRect(-4 * ps, -6 * ps, 8 * ps, 2 * ps);
+                ctx.fillStyle = "#d4af37"; // Óculos dourados
+                ctx.fillRect(-3 * ps, -5 * ps, 6 * ps, 1 * ps);
+                ctx.fillStyle = "#ffdbac"; // Rosto pele
+                ctx.fillRect(-3 * ps, -4 * ps, 6 * ps, 3 * ps);
+                ctx.fillStyle = "#000000"; // Olhos
+                ctx.fillRect(-2 * ps, -3 * ps, 1 * ps, 1 * ps);
+                ctx.fillRect(1 * ps, -3 * ps, 1 * ps, 1 * ps);
+                ctx.fillStyle = "#3a86ff"; // Jaqueta azul
+                ctx.fillRect(-4 * ps, -1 * ps, 8 * ps, 5 * ps);
+                ctx.fillStyle = "#ffcc00"; // Detalhe jaqueta
+                ctx.fillRect(-1 * ps, -1 * ps, 2 * ps, 3 * ps);
+                ctx.fillStyle = "#4a3525"; // Pernas/Botas
                 ctx.fillRect(-3 * ps, 4 * ps, 2 * ps, 2 * ps);
                 ctx.fillRect(1 * ps, 4 * ps, 2 * ps, 2 * ps);
             } 
             else if (player.skin === 1) {
-                ctx.fillStyle = "#3366ff";
-                ctx.fillRect(-4 * ps, -3 * ps, 8 * ps, 7 * ps);
-                ctx.fillStyle = "#1a3399";
-                ctx.fillRect(-4 * ps, -5 * ps, 8 * ps, 2 * ps);
-                ctx.fillStyle = "#ff3333";
-                ctx.fillRect(-4 * ps, -4 * ps, 8 * ps, 1 * ps);
-                ctx.fillStyle = "#ffffff";
-                ctx.fillRect(0, -3 * ps, 2 * ps, 1 * ps);
-                ctx.fillStyle = "#1a3399";
+                // SKIN 1: Ninja Estelar
+                ctx.fillStyle = "#ff3333"; // Faixa vermelha na testa
+                ctx.fillRect(-4 * ps, -6 * ps, 8 * ps, 1 * ps);
+                ctx.fillStyle = "#1e293b"; // Capuz azul escuro
+                ctx.fillRect(-4 * ps, -5 * ps, 8 * ps, 3 * ps);
+                ctx.fillStyle = "#ffffff"; // Olhos brilhantes na máscara
+                ctx.fillRect(-2 * ps, -4 * ps, 1 * ps, 1 * ps);
+                ctx.fillRect(1 * ps, -4 * ps, 1 * ps, 1 * ps);
+                ctx.fillStyle = "#1e293b"; // Roupa ninja
+                ctx.fillRect(-4 * ps, -2 * ps, 8 * ps, 6 * ps);
+                ctx.fillStyle = "#06b6d4"; // Detalhes em ciano neon
+                ctx.fillRect(-3 * ps, 0, 6 * ps, 1 * ps);
+                ctx.fillStyle = "#0f172a"; // Botas
                 ctx.fillRect(-3 * ps, 4 * ps, 2 * ps, 2 * ps);
                 ctx.fillRect(1 * ps, 4 * ps, 2 * ps, 2 * ps);
             } 
             else if (player.skin === 2) {
-                ctx.fillStyle = "#cccccc";
-                ctx.fillRect(-4 * ps, -3 * ps, 8 * ps, 7 * ps);
-                ctx.fillStyle = "#999999";
-                ctx.fillRect(-4 * ps, -5 * ps, 8 * ps, 2 * ps);
-                ctx.fillStyle = "#00ff66";
-                ctx.fillRect(-1 * ps, -3 * ps, 3 * ps, 1 * ps);
-                ctx.fillStyle = "#666666";
+                // SKIN 2: Andróide Cyber
+                ctx.fillStyle = "#64748b"; // Capacete metálico
+                ctx.fillRect(-4 * ps, -6 * ps, 8 * ps, 2 * ps);
+                ctx.fillStyle = "#22c55e"; // Visor de LED verde
+                ctx.fillRect(-3 * ps, -4 * ps, 6 * ps, 2 * ps);
+                ctx.fillStyle = "#475569"; // Armadura cinza pesada
+                ctx.fillRect(-4 * ps, -2 * ps, 8 * ps, 6 * ps);
+                ctx.fillStyle = "#4ade80"; // Circuitos verdes pulsantes
+                ctx.fillRect(-1 * ps, -1 * ps, 2 * ps, 4 * ps);
+                ctx.fillStyle = "#334155"; // Pés magnéticos
                 ctx.fillRect(-3 * ps, 4 * ps, 2 * ps, 2 * ps);
                 ctx.fillRect(1 * ps, 4 * ps, 2 * ps, 2 * ps);
             }
