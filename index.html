@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HeliJump: Salto Infinito</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            background-color: #0b0b10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        #game-container {
+            width: 100%;
+            max-width: 400px;
+            height: 100%;
+            max-height: 800px;
+            background: #111;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        canvas {
+            background: linear-gradient(to bottom, #1a1a2e, #16213e);
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="ui-layer">Score: <span id="scoreVal">0</span></div>
+        <canvas id="gameCanvas" width="400" height="600"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const scoreValElement = document.getElementById("scoreVal");
+
+        // Configurações do Jogo
+        const GRAVITY = 0.38;
+        const JUMP_FORCE = -9.5;
+        const MOVE_SPEED = 5.5;
+
+        // Estado do Jogador
+        let player = {
+            x: canvas.width / 2 - 20,
+            y: 400,
+            width: 36,
+            height: 36,
+            vx: 0,
+            vy: 0,
+            facing: 1 // 1 para direita, -1 para esquerda
+        };
+
+        let platforms = [];
+        const platformWidth = 75;
+        const platformHeight = 16;
+        let score = 0;
+        let highScore = 0;
+        let gameOver = false;
+
+        // Controles
+        let leftPressed = false;
+        let rightPressed = false;
+
+        function initPlatforms() {
+            platforms = [];
+            // Plataforma inicial abaixo do jogador
+            platforms.push({ x: canvas.width / 2 - 37, y: 520, width: platformWidth, height: platformHeight });
+
+            // Gerar plataformas subindo
+            let currentY = 440;
+            while (currentY > -50) {
+                platforms.push({
+                    x: Math.random() * (canvas.width - platformWidth),
+                    y: currentY,
+                    width: platformWidth,
+                    height: platformHeight
+                });
+                currentY -= 75 + Math.random() * 25;
+            }
+        }
+
+        // Eventos de Toque (Mobile)
+        window.addEventListener("touchstart", (e) => {
+            if (gameOver) {
+                resetGame();
+                return;
+            }
+            let touchX = e.touches[0].clientX;
+            let screenWidth = window.innerWidth;
+            if (touchX < screenWidth / 2) {
+                leftPressed = true;
+                rightPressed = false;
+            } else {
+                rightPressed = true;
+                leftPressed = false;
+            }
+        });
+
+        window.addEventListener("touchend", () => {
+            leftPressed = false;
+            rightPressed = false;
+        });
+
+        // Eventos de Teclado (PC para testes)
+        window.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && gameOver) {
+                resetGame();
+                return;
+            }
+            if (e.key === "ArrowLeft") leftPressed = true;
+            if (e.key === "ArrowRight") rightPressed = true;
+        });
+        window.addEventListener("keyup", (e) => {
+            if (e.key === "ArrowLeft") leftPressed = false;
+            if (e.key === "ArrowRight") rightPressed = false;
+        });
+
+        function update() {
+            if (gameOver) return;
+
+            // Movimento horizontal
+            if (leftPressed) {
+                player.vx = -MOVE_SPEED;
+                player.facing = -1;
+            } else if (rightPressed) {
+                player.vx = MOVE_SPEED;
+                player.facing = 1;
+            } else {
+                player.vx = 0;
+            }
+
+            player.x += player.vx;
+
+            // Enrolar nas bordas da tela (Passar de um lado sai no outro)
+            if (player.x > canvas.width) player.x = -player.width;
+            if (player.x + player.width < 0) player.x = canvas.width;
+
+            // Física de Gravidade
+            player.vy += GRAVITY;
+            player.y += player.vy;
+
+            // Colisão com as plataformas (apenas caindo)
+            if (player.vy > 0) {
+                platforms.forEach(plat => {
+                    if (
+                        player.x + player.width - 8 > plat.x &&
+                        player.x + 8 < plat.x + plat.width &&
+                        player.y + player.height >= plat.y &&
+                        player.y + player.height <= plat.y + plat.height + player.vy
+                    ) {
+                        player.vy = JUMP_FORCE;
+                    }
+                });
+            }
+
+            // Câmera subindo quando o jogador passa da metade da tela
+            let cameraThreshold = canvas.height * 0.45;
+            if (player.y < cameraThreshold) {
+                let diff = cameraThreshold - player.y;
+                player.y = cameraThreshold;
+                score += Math.floor(diff);
+                scoreValElement.innerText = Math.floor(score / 10);
+
+                platforms.forEach(plat => {
+                    plat.y += diff;
+                });
+            }
+
+            // Reciclar plataformas que saem por baixo
+            platforms.forEach(plat => {
+                if (plat.y > canvas.height) {
+                    plat.y = -20;
+                    plat.x = Math.random() * (canvas.width - platformWidth);
+                }
+            });
+
+            // Game Over se cair no fundo
+            if (player.y > canvas.height) {
+                gameOver = true;
+            }
+        }
+
+        function resetGame() {
+            player.x = canvas.width / 2 - 20;
+            player.y = 400;
+            player.vy = 0;
+            score = 0;
+            scoreValElement.innerText = "0";
+            gameOver = false;
+            initPlatforms();
+        }
+
+        function draw() {
+            // Limpar fundo com gradiente estelar leve
+            ctx.fillStyle = "#12121c";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Desenhar Plataformas com visual moderno arredondado
+            platforms.forEach(plat => {
+                ctx.fillStyle = "#4ecca3";
+                ctx.beginPath();
+                ctx.roundRect(plat.x, plat.y, plat.width, plat.height, 8);
+                ctx.fill();
+            });
+
+            // Desenhar Jogador (Substituído temporariamente por emoji expressivo / ícone de helicóptero/boneco)
+            ctx.font = "32px sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("🚁", player.x + player.width / 2, player.y + player.height / 2);
+
+            // Tela de Game Over
+            if (gameOver) {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = "#ffffff";
+                ctx.font = "bold 30px sans-serif";
+                ctx.fillText("FIM DE JOGO", canvas.width / 2, canvas.height / 2 - 40);
+
+                ctx.font = "18px sans-serif";
+                ctx.fillStyle = "#4ecca3";
+                ctx.fillText(`Pontuação Final: ${Math.floor(score / 10)}`, canvas.width / 2, canvas.height / 2 + 5);
+
+                ctx.fillStyle = "#aaaaaa";
+                ctx.font = "14px sans-serif";
+                ctx.fillText("Toque na tela para reiniciar", canvas.width / 2, canvas.height / 2 + 55);
+            }
+        }
+
+        function loop() {
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+
+        resetGame();
+        loop();
+    </script>
+</body>
+</html>
