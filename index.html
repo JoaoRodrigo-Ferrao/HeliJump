@@ -37,7 +37,7 @@
         }
 
         canvas {
-            background: linear-gradient(to bottom, #4a90e2, #87ceeb);
+            background: linear-gradient(to bottom, #3a86ff, #87ceeb);
             width: 100%;
             height: 100%;
             object-fit: contain;
@@ -136,7 +136,7 @@
         <!-- Modal Inicial -->
         <div id="start-modal">
             <h1>SKY HOP</h1>
-            <p>Suba pelas nuvens e conquiste o topo do céu!</p>
+            <p>Suba pelas nuvens! Cuidado: acima de 300 pontos as nuvens começam a se mover!</p>
             
             <div class="controls-info">
                 <p><strong>Como Jogar no Celular:</strong></p>
@@ -209,6 +209,26 @@
             osc2.stop(now + 0.18);
         }
 
+        // Som de Game Over
+        function playGameOverSound() {
+            if (!audioCtx) return;
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(300, now);
+            osc.frequency.exponentialRampToValueAtTime(80, now + 0.4);
+            
+            gain.gain.setValueAtTime(0.3, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.4);
+        }
+
         // Física do Jogo
         const GRAVITY = 0.38;
         const JUMP_FORCE = -9.8;
@@ -241,19 +261,30 @@
         let leftPressed = false;
         let rightPressed = false;
 
+        function createPlatform(y) {
+            let p = {
+                x: Math.random() * (canvas.width - platformWidth),
+                y: y,
+                width: platformWidth,
+                height: platformHeight,
+                isMoving: false,
+                moveSpeed: 0,
+                direction: 1
+            };
+
+            // Níveis de Dificuldade baseados na pontuação implícita da altura gerada
+            // (Quanto mais alto, maior a chance de ter nuvens móveis)
+            return p;
+        }
+
         function initPlatforms() {
             platforms = [];
             // Plataforma inicial abaixo do jogador
-            platforms.push({ x: canvas.width / 2 - 40, y: 520, width: platformWidth, height: platformHeight });
+            platforms.push({ x: canvas.width / 2 - 40, y: 520, width: platformWidth, height: platformHeight, isMoving: false });
 
             let currentY = 440;
             while (currentY > -50) {
-                platforms.push({
-                    x: Math.random() * (canvas.width - platformWidth),
-                    y: currentY,
-                    width: platformWidth,
-                    height: platformHeight
-                });
+                platforms.push(createPlatform(currentY));
                 currentY -= 75 + Math.random() * 25;
             }
         }
@@ -308,7 +339,7 @@
         function update() {
             if (!gameStarted || gameOver) return;
 
-            // Movimentação original (velocidade fixa imediata)
+            // Movimentação original
             if (leftPressed) {
                 player.vx = -MOVE_SPEED;
                 player.facingRight = false;
@@ -328,6 +359,17 @@
             // Gravidade
             player.vy += GRAVITY;
             player.y += player.vy;
+
+            // Atualizar movimento horizontal das plataformas móveis (Níveis de Dificuldade)
+            platforms.forEach(plat => {
+                if (plat.isMoving) {
+                    plat.x += plat.moveSpeed * plat.direction;
+                    // Bate nas bordas da tela e inverte o sentido
+                    if (plat.x <= 0 || plat.x + plat.width >= canvas.width) {
+                        plat.direction *= -1;
+                    }
+                }
+            });
 
             // Colisão com plataformas em nuvem (apenas descendo)
             if (player.vy > 0) {
@@ -365,17 +407,33 @@
                 });
             }
 
-            // Reciclar plataformas no topo
+            // Reciclar plataformas no topo com dificuldade progressiva
             platforms.forEach(plat => {
                 if (plat.y > canvas.height) {
                     plat.y = -20;
                     plat.x = Math.random() * (canvas.width - platformWidth);
+                    plat.direction = Math.random() < 0.5 ? 1 : -1;
+
+                    // Definição de dificuldade por pontuação
+                    if (displayScore >= 600) {
+                        // Nível Difícil: 50% de chance de se mover rápido
+                        plat.isMoving = Math.random() < 0.50;
+                        plat.moveSpeed = 2.2 + Math.random() * 1.5;
+                    } else if (displayScore >= 300) {
+                        // Nível Médio: 30% de chance de se mover devagar
+                        plat.isMoving = Math.random() < 0.30;
+                        plat.moveSpeed = 1.2 + Math.random() * 0.8;
+                    } else {
+                        // Nível Fácil: Apenas plataformas fixas
+                        plat.isMoving = false;
+                    }
                 }
             });
 
             // Game Over
             if (player.y > canvas.height) {
                 gameOver = true;
+                playGameOverSound();
                 if (displayScore > highScore) {
                     highScore = displayScore;
                     localStorage.setItem("sky_hop_high_score", highScore);
@@ -399,18 +457,17 @@
         }
 
         // Desenhar Nuvem em Pixel Art
-        function drawPixelCloud(x, y, w, h) {
-            const ps = 4; // Bloco de pixel
-            ctx.fillStyle = "#ffffff";
-            // Base da nuvem
+        function drawPixelCloud(x, y, w, h, isMoving) {
+            const ps = 4;
+            // Se for nuvem móvel, muda levemente o tom para indicar perigo/movimento
+            ctx.fillStyle = isMoving ? "#e0f2fe" : "#ffffff";
+            
             ctx.fillRect(x + ps, y + ps, w - (ps * 2), h - (ps * 2));
             ctx.fillRect(x, y + (ps * 2), w, h - (ps * 4));
-            // Topo fofinho em pixel
             ctx.fillRect(x + (ps * 2), y, w - (ps * 4), ps);
             ctx.fillRect(x + (ps * 3), y - ps, w - (ps * 6), ps);
 
-            // Sombra inferior da nuvem para dar efeito pixel art
-            ctx.fillStyle = "#b0d4f1";
+            ctx.fillStyle = isMoving ? "#7dd3fc" : "#b0d4f1";
             ctx.fillRect(x + ps, y + h - (ps * 2), w - (ps * 2), ps);
         }
 
@@ -423,13 +480,13 @@
                 ctx.scale(-1, 1);
             }
 
-            const ps = 3; // Tamanho de cada pixel
+            const ps = 3;
 
-            // Corpo (Amarelo)
+            // Corpo
             ctx.fillStyle = "#ffcc00";
             ctx.fillRect(-4 * ps, -3 * ps, 8 * ps, 7 * ps);
 
-            // Capacete / Chapéu (Vermelho com detalhe branco)
+            // Capacete
             ctx.fillStyle = "#ff3333";
             ctx.fillRect(-5 * ps, -5 * ps, 10 * ps, 2 * ps);
             ctx.fillRect(-3 * ps, -6 * ps, 6 * ps, 1 * ps);
@@ -449,7 +506,7 @@
         }
 
         function draw() {
-            // Céu com gradiente desenhado no canvas
+            // Céu com gradiente
             let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
             grad.addColorStop(0, "#3a86ff");
             grad.addColorStop(0.5, "#6ea8fe");
@@ -459,7 +516,7 @@
 
             // Desenhar Nuvens (Plataformas)
             platforms.forEach(plat => {
-                drawPixelCloud(plat.x, plat.y, plat.width, plat.height);
+                drawPixelCloud(plat.x, plat.y, plat.width, plat.height, plat.isMoving);
             });
 
             // Desenhar Boneco
