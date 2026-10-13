@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sky Hop - Pixel Art</title>
+    <title>Sky Hop - Loja e Skins</title>
     <style>
         * {
             box-sizing: border-box;
@@ -54,7 +54,7 @@
             padding: 0 20px;
             display: flex;
             justify-content: space-between;
-            align-items: center; /* Centralizado perfeitamente na vertical */
+            align-items: center;
             color: #ffffff;
             font-size: 16px;
             font-weight: bold;
@@ -63,7 +63,7 @@
             z-index: 5;
         }
 
-        /* Modal de Instruções / Menu Inicial */
+        /* Modal Inicial (Menu Principal) */
         #start-modal {
             position: absolute;
             top: 0;
@@ -82,7 +82,7 @@
         }
 
         #start-modal h1 {
-            font-size: 28px;
+            font-size: 32px;
             color: #ffe600;
             margin-bottom: 10px;
             text-shadow: 3px 3px 0px #d4380d;
@@ -91,7 +91,7 @@
         #start-modal p {
             font-size: 14px;
             color: #f0f0f0;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
             line-height: 1.3;
         }
 
@@ -99,42 +99,24 @@
             background: rgba(0, 0, 0, 0.2);
             border: 2px dashed rgba(255, 255, 255, 0.4);
             border-radius: 10px;
-            padding: 10px;
+            padding: 12px;
             margin: 10px 0;
             width: 100%;
         }
 
-        /* Seleção de Skins no Menu */
-        .skin-selector {
+        .menu-buttons {
             display: flex;
-            gap: 10px;
-            margin: 10px 0;
-        }
-
-        .skin-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid #fff;
-            color: white;
-            padding: 6px 12px;
-            font-size: 12px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        .skin-btn.active {
-            background: #ffe600;
-            color: #532d00;
-            border-color: #ff9900;
+            gap: 15px;
+            margin-top: 15px;
+            align-items: center;
         }
 
         #start-btn {
-            margin-top: 10px;
             background: #ffcc00;
             color: #532d00;
             border: 3px solid #ff9900;
-            padding: 12px 26px;
-            font-size: 16px;
+            padding: 12px 30px;
+            font-size: 18px;
             font-weight: bold;
             border-radius: 12px;
             cursor: pointer;
@@ -145,12 +127,134 @@
             transform: translateY(2px);
             box-shadow: 0 2px 0 #cc7a00;
         }
+
+        /* Botão de Loja (Carrinho) */
+        #shop-icon-btn {
+            background: #22c55e;
+            color: white;
+            border: 3px solid #15803d;
+            width: 50px;
+            height: 50px;
+            font-size: 22px;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #166534;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #shop-icon-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #166534;
+        }
+
+        /* Modal da Loja */
+        #shop-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.98);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            padding: 25px;
+            z-index: 20;
+        }
+
+        #shop-modal h2 {
+            color: #ffe600;
+            margin-bottom: 5px;
+            font-size: 24px;
+        }
+
+        .shop-balance {
+            font-size: 15px;
+            color: #4efc8d;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .skin-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            max-width: 300px;
+            margin-bottom: 20px;
+        }
+
+        .skin-item {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .skin-info {
+            text-align: left;
+        }
+
+        .skin-name {
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .skin-price {
+            font-size: 12px;
+            color: #ffcc00;
+        }
+
+        .skin-action-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .skin-action-btn.equipped {
+            background: #22c55e;
+            cursor: default;
+        }
+
+        .skin-action-btn.locked {
+            background: #94a3b8;
+            color: #334155;
+            cursor: pointer;
+        }
+
+        .skin-action-btn.buyable {
+            background: #eab308;
+            color: #422006;
+            cursor: pointer;
+        }
+
+        #close-shop-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
     <div id="game-container">
-        <!-- UI com Pontuação, Carteira de Moedas e Recorde -->
+        <!-- UI com Pontuação, Moedas e Recorde -->
         <div id="ui-layer">
             <div>Pontos: <span id="scoreVal">0</span></div>
             <div>🪙 <span id="coinsVal">0</span></div>
@@ -160,25 +264,31 @@
         <!-- Canvas do Jogo -->
         <canvas id="gameCanvas" width="400" height="600"></canvas>
 
-        <!-- Modal Inicial / Loja de Skins -->
+        <!-- Menu Inicial -->
         <div id="start-modal">
             <h1>SKY HOP</h1>
-            <p>Suba pelas nuvens, colete moedas e desvie das móveis!</p>
+            <p>Suba pelas nuvens, colete moedas espaçadas e conquiste o topo!</p>
             
-            <div class="controls-info">
-                <p><strong>Escolha sua Skin:</strong></p>
-                <div class="skin-selector" id="skinSelector">
-                    <button class="skin-btn active" data-skin="0">🟡 Clássico</button>
-                    <button class="skin-btn" data-skin="1">🔵 Ninja</button>
-                    <button class="skin-btn" data-skin="2">🤖 Robô</button>
-                </div>
-            </div>
-
             <div class="controls-info">
                 <p>👈 Toque na <strong>esquerda</strong> | 👉 Toque na <strong>direita</strong></p>
             </div>
 
-            <button id="start-btn">JOGAR AGORA</button>
+            <div class="menu-buttons">
+                <button id="start-btn">JOGAR</button>
+                <button id="shop-icon-btn" title="Loja de Skins">🛒</button>
+            </div>
+        </div>
+
+        <!-- Modal da Loja de Skins -->
+        <div id="shop-modal">
+            <h2>LOJA DE SKINS</h2>
+            <div class="shop-balance">Suas Moedas: 🪙 <span id="shopCoinsVal">0</span></div>
+            
+            <div class="skin-list" id="skinListContainer">
+                <!-- Gerado via JavaScript -->
+            </div>
+
+            <button id="close-shop-btn">VOLTAR</button>
         </div>
     </div>
 
@@ -190,7 +300,11 @@
         const highScoreValElement = document.getElementById("highScoreVal");
         const startModal = document.getElementById("start-modal");
         const startBtn = document.getElementById("start-btn");
-        const skinButtons = document.querySelectorAll(".skin-btn");
+        const shopIconBtn = document.getElementById("shop-icon-btn");
+        const shopModal = document.getElementById("shop-modal");
+        const closeShopBtn = document.getElementById("close-shop-btn");
+        const shopCoinsVal = document.getElementById("shopCoinsVal");
+        const skinListContainer = document.getElementById("skinListContainer");
 
         // Sistema de Áudio Sintetizado (Web Audio API)
         let audioCtx = null;
@@ -224,8 +338,8 @@
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = 'triangle';
-            osc.frequency.setValueAtTime(987.77, now); // Nota B5
-            osc.frequency.setValueAtTime(1318.51, now + 0.08); // Nota E6
+            osc.frequency.setValueAtTime(987.77, now);
+            osc.frequency.setValueAtTime(1318.51, now + 0.08);
             gain.gain.setValueAtTime(0.2, now);
             gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
             osc.connect(gain);
@@ -234,11 +348,10 @@
             osc.stop(now + 0.2);
         }
 
-        // Som de Alerta a cada 100 pontos
+        // Som de Marco (100 pontos)
         function playMilestoneSound() {
             if (!audioCtx) return;
             const now = audioCtx.currentTime;
-            
             const osc1 = audioCtx.createOscillator();
             const gain1 = audioCtx.createGain();
             osc1.type = 'square';
@@ -282,7 +395,23 @@
             osc.stop(now + 0.4);
         }
 
-        // Física e Dados
+        // Configuração das Skins
+        const skinsData = [
+            { id: 0, name: "Clássico Amarelo", price: 0 },
+            { id: 1, name: "Ninja Azul", price: 50 },
+            { id: 2, name: "Robô Cyber", price: 100 }
+        ];
+
+        // Carregar salvamentos do localStorage
+        let totalCoins = parseInt(localStorage.getItem("sky_hop_coins")) || 0;
+        let highScore = parseInt(localStorage.getItem("sky_hop_high_score")) || 0;
+        let unlockedSkins = JSON.parse(localStorage.getItem("sky_hop_unlocked")) || [0];
+        let currentSkin = parseInt(localStorage.getItem("sky_hop_current_skin")) || 0;
+
+        highScoreValElement.innerText = highScore;
+        coinsValElement.innerText = totalCoins;
+
+        // Física e Estado do Jogador
         const GRAVITY = 0.38;
         const JUMP_FORCE = -9.8;
         const MOVE_SPEED = 5.5;
@@ -295,7 +424,7 @@
             vx: 0,
             vy: 0,
             facingRight: true,
-            skin: 0 // 0: Clássico, 1: Ninja, 2: Robô
+            skin: currentSkin
         };
 
         let platforms = [];
@@ -305,26 +434,93 @@
         let score = 0;
         let displayScore = 0;
         let lastMilestone = 0;
-        let totalCoins = parseInt(localStorage.getItem("sky_hop_coins")) || 0;
-        let highScore = parseInt(localStorage.getItem("sky_hop_high_score")) || 0;
         let gameStarted = false;
         let gameOver = false;
+        let lastCoinY = 0; // Usado para garantir grande distância entre as moedas
 
-        highScoreValElement.innerText = highScore;
-        coinsValElement.innerText = totalCoins;
+        // Renderizar Loja
+        function renderShop() {
+            shopCoinsVal.innerText = totalCoins;
+            skinListContainer.innerHTML = "";
 
-        // Seleção de Skin via Botões do Modal
-        skinButtons.forEach(btn => {
-            btn.addEventListener("click", (e) => {
-                skinButtons.forEach(b => b.classList.remove("active"));
-                e.target.classList.add("active");
-                player.skin = parseInt(e.target.getAttribute("data-skin"));
+            skinsData.forEach(skin => {
+                let isUnlocked = unlockedSkins.includes(skin.id);
+                let isEquipped = (player.skin === skin.id);
+
+                let btnClass = "";
+                let btnText = "";
+
+                if (isEquipped) {
+                    btnClass = "equipped";
+                    btnText = "Equipado";
+                } else if (isUnlocked) {
+                    btnClass = "";
+                    btnText = "Equipar";
+                } else {
+                    if (totalCoins >= skin.price) {
+                        btnClass = "buyable";
+                        btnText = `Comprar (${skin.price}🪙)`;
+                    } else {
+                        btnClass = "locked";
+                        btnText = `${skin.price}🪙`;
+                    }
+                }
+
+                let itemDiv = document.createElement("div");
+                itemDiv.className = "skin-item";
+                itemDiv.innerHTML = `
+                    <div class="skin-info">
+                        <div class="skin-name">${skin.name}</div>
+                        <div class="skin-price">${skin.price === 0 ? 'Grátis' : skin.price + ' moedas'}</div>
+                    </div>
+                    <button class="skin-action-btn ${btnClass}" data-id="${skin.id}">${btnText}</button>
+                `;
+
+                skinListContainer.appendChild(itemDiv);
             });
+
+            // Adicionar eventos aos botões da loja
+            document.querySelectorAll(".skin-action-btn").forEach(btn => {
+                btn.addEventListener("click", (e) => {
+                    let skinId = parseInt(e.target.getAttribute("data-id"));
+                    let skin = skinsData.find(s => s.id === skinId);
+
+                    if (unlockedSkins.includes(skinId)) {
+                        // Equipar
+                        player.skin = skinId;
+                        localStorage.setItem("sky_hop_current_skin", skinId);
+                        renderShop();
+                    } else {
+                        // Comprar se tiver saldo
+                        if (totalCoins >= skin.price) {
+                            totalCoins -= skin.price;
+                            coinsValElement.innerText = totalCoins;
+                            localStorage.setItem("sky_hop_coins", totalCoins);
+
+                            unlockedSkins.push(skinId);
+                            localStorage.setItem("sky_hop_unlocked", JSON.stringify(unlockedSkins));
+
+                            player.skin = skinId;
+                            localStorage.setItem("sky_hop_current_skin", skinId);
+
+                            playCoinSound();
+                            renderShop();
+                        }
+                    }
+                });
+            });
+        }
+
+        // Eventos da Loja
+        shopIconBtn.addEventListener("click", () => {
+            initAudio();
+            renderShop();
+            shopModal.style.display = "flex";
         });
 
-        // Controles
-        let leftPressed = false;
-        let rightPressed = false;
+        closeShopBtn.addEventListener("click", () => {
+            shopModal.style.display = "none";
+        });
 
         function createPlatform(y) {
             let p = {
@@ -337,13 +533,15 @@
                 direction: 1
             };
 
-            // Chance de gerar uma moeda em cima da plataforma
-            if (Math.random() < 0.45) {
+            // Moedas bem mais espaçadas (distância vertical mínima de 220 pixels entre uma moeda e outra)
+            let coinChance = Math.random();
+            if (coinChance < 0.25 && (lastCoinY === 0 || Math.abs(y - lastCoinY) > 220)) {
                 coins.push({
                     x: p.x + p.width / 2 - 8,
                     y: y - 24,
                     collected: false
                 });
+                lastCoinY = y;
             }
 
             return p;
@@ -352,6 +550,7 @@
         function initPlatforms() {
             platforms = [];
             coins = [];
+            lastCoinY = 0;
             platforms.push({ x: canvas.width / 2 - 40, y: 520, width: platformWidth, height: platformHeight, isMoving: false });
 
             let currentY = 440;
@@ -363,7 +562,7 @@
 
         // Toque Mobile
         window.addEventListener("touchstart", (e) => {
-            if (!gameStarted) return;
+            if (!gameStarted || shopModal.style.display === "flex") return;
             if (gameOver) {
                 resetGame();
                 return;
@@ -386,7 +585,7 @@
 
         // Teclado PC
         window.addEventListener("keydown", (e) => {
-            if (!gameStarted) return;
+            if (!gameStarted || shopModal.style.display === "flex") return;
             if (e.key === "Enter" && gameOver) {
                 resetGame();
                 return;
@@ -456,7 +655,6 @@
             // Coleta de Moedas
             coins.forEach(coin => {
                 if (!coin.collected) {
-                    // Colisão simples do jogador com a moeda
                     if (
                         player.x < coin.x + 16 &&
                         player.x + player.width > coin.x &&
@@ -489,9 +687,10 @@
 
                 platforms.forEach(plat => plat.y += diff);
                 coins.forEach(coin => coin.y += diff);
+                lastCoinY += diff;
             }
 
-            // Reciclar plataformas e moedas que saem por baixo
+            // Reciclar plataformas e moedas
             platforms.forEach((plat, index) => {
                 if (plat.y > canvas.height) {
                     plat.y = -20;
@@ -508,11 +707,17 @@
                         plat.isMoving = false;
                     }
 
-                    // Reciclar moeda correspondente
+                    // Tentar reciclar moeda respeitando grande espaçamento
                     if (coins[index]) {
-                        coins[index].collected = false;
-                        coins[index].x = plat.x + plat.width / 2 - 8;
-                        coins[index].y = plat.y - 24;
+                        let coinChance = Math.random();
+                        if (coinChance < 0.25 && (lastCoinY === 0 || Math.abs(plat.y - lastCoinY) > 220)) {
+                            coins[index].collected = false;
+                            coins[index].x = plat.x + plat.width / 2 - 8;
+                            coins[index].y = plat.y - 24;
+                            lastCoinY = plat.y;
+                        } else {
+                            coins[index].collected = true; // Mantém invisível se não for gerada
+                        }
                     }
                 }
             });
@@ -543,7 +748,7 @@
             initPlatforms();
         }
 
-        // Desenhar Nuvem em Pixel Art
+        // Desenhar Nuvem
         function drawPixelCloud(x, y, w, h, isMoving) {
             const ps = 4;
             ctx.fillStyle = isMoving ? "#e0f2fe" : "#ffffff";
@@ -556,19 +761,19 @@
             ctx.fillRect(x + ps, y + h - (ps * 2), w - (ps * 2), ps);
         }
 
-        // Desenhar Moeda em Pixel Art
+        // Desenhar Moeda
         function drawPixelCoin(x, y) {
             const ps = 2;
             ctx.fillStyle = "#ffcc00";
             ctx.fillRect(x + ps, y, 4 * ps, 6 * ps);
-            ctx.fillStyle = "#fff066"; // Brilho interno
+            ctx.fillStyle = "#fff066";
             ctx.fillRect(x + (2 * ps), y + ps, 2 * ps, 4 * ps);
-            ctx.fillStyle = "#cc9900"; // Borda
+            ctx.fillStyle = "#cc9900";
             ctx.fillRect(x, y + ps, ps, 4 * ps);
             ctx.fillRect(x + (5 * ps), y + ps, ps, 4 * ps);
         }
 
-        // Desenhar o Boneco em Pixel Art com 3 Skins diferentes
+        // Desenhar Boneco com as Skins
         function drawPixelArtPlayer() {
             ctx.save();
             ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
@@ -580,7 +785,7 @@
             const ps = 3;
 
             if (player.skin === 0) {
-                // Skin 0: Clássico Amarelo com chapéu vermelho
+                // Clássico Amarelo
                 ctx.fillStyle = "#ffcc00";
                 ctx.fillRect(-4 * ps, -3 * ps, 8 * ps, 7 * ps);
                 ctx.fillStyle = "#ff3333";
@@ -595,26 +800,26 @@
                 ctx.fillRect(1 * ps, 4 * ps, 2 * ps, 2 * ps);
             } 
             else if (player.skin === 1) {
-                // Skin 1: Ninja Azul com faixa vermelha
+                // Ninja Azul
                 ctx.fillStyle = "#3366ff";
                 ctx.fillRect(-4 * ps, -3 * ps, 8 * ps, 7 * ps);
                 ctx.fillStyle = "#1a3399";
                 ctx.fillRect(-4 * ps, -5 * ps, 8 * ps, 2 * ps);
-                ctx.fillStyle = "#ff3333"; // Faixa
+                ctx.fillStyle = "#ff3333";
                 ctx.fillRect(-4 * ps, -4 * ps, 8 * ps, 1 * ps);
-                ctx.fillStyle = "#ffffff"; // Olhos ninja
+                ctx.fillStyle = "#ffffff";
                 ctx.fillRect(0, -3 * ps, 2 * ps, 1 * ps);
                 ctx.fillStyle = "#1a3399";
                 ctx.fillRect(-3 * ps, 4 * ps, 2 * ps, 2 * ps);
                 ctx.fillRect(1 * ps, 4 * ps, 2 * ps, 2 * ps);
             } 
             else if (player.skin === 2) {
-                // Skin 2: Robô Cyber Prateado com Visor Verde
+                // Robô Cyber
                 ctx.fillStyle = "#cccccc";
                 ctx.fillRect(-4 * ps, -3 * ps, 8 * ps, 7 * ps);
                 ctx.fillStyle = "#999999";
                 ctx.fillRect(-4 * ps, -5 * ps, 8 * ps, 2 * ps);
-                ctx.fillStyle = "#00ff66"; // Visor tecnológico
+                ctx.fillStyle = "#00ff66";
                 ctx.fillRect(-1 * ps, -3 * ps, 3 * ps, 1 * ps);
                 ctx.fillStyle = "#666666";
                 ctx.fillRect(-3 * ps, 4 * ps, 2 * ps, 2 * ps);
