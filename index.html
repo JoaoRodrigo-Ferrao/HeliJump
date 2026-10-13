@@ -185,27 +185,44 @@
         .shop-balance {
             font-size: 15px;
             color: #4efc8d;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             font-weight: bold;
         }
 
         .skin-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
             width: 100%;
-            max-width: 300px;
+            max-width: 320px;
             margin-bottom: 20px;
+            max-height: 420px;
+            overflow-y: auto;
+            padding-right: 5px;
         }
 
         .skin-item {
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.15);
             border-radius: 10px;
-            padding: 12px 15px;
+            padding: 10px 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+
+        .skin-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .skin-preview-canvas {
+            width: 36px;
+            height: 36px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .skin-info {
@@ -214,22 +231,24 @@
 
         .skin-name {
             font-weight: bold;
-            font-size: 15px;
+            font-size: 14px;
+            color: #f8fafc;
         }
 
         .skin-price {
-            font-size: 12px;
+            font-size: 11px;
             color: #ffcc00;
+            margin-top: 2px;
         }
 
         .skin-action-btn {
             background: #3b82f6;
             color: white;
             border: none;
-            padding: 6px 14px;
+            padding: 6px 12px;
             border-radius: 6px;
             font-weight: bold;
-            font-size: 13px;
+            font-size: 12px;
             cursor: pointer;
         }
 
@@ -285,7 +304,7 @@
                 <button id="shop-icon-btn" class="shop-btn-style" title="Loja de Skins">🛒</button>
             </div>
 
-            <div class="version-watermark">v1.2.0-beta</div>
+            <div class="version-watermark">v1.3.0-beta</div>
         </div>
 
         <div id="gameover-modal">
@@ -298,7 +317,7 @@
                 <button id="gameover-shop-btn" class="shop-btn-style" title="Loja de Skins">🛒</button>
             </div>
 
-            <div class="version-watermark">v1.2.0-beta</div>
+            <div class="version-watermark">v1.3.0-beta</div>
         </div>
 
         <div id="shop-modal">
@@ -469,6 +488,54 @@
         let gameStarted = false;
         let gameOver = false;
 
+        function drawCharacterPreview(previewCanvas, skinId) {
+            const pCtx = previewCanvas.getContext("2d");
+            pCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+            pCtx.save();
+            pCtx.translate(previewCanvas.width / 2, previewCanvas.height / 2 + 3);
+
+            const ps = 2.2;
+
+            if (skinId === 0) {
+                pCtx.fillStyle = "#8b4513";
+                pCtx.fillRect(-4 * ps, -6 * ps, 8 * ps, 2 * ps);
+                pCtx.fillStyle = "#d4af37";
+                pCtx.fillRect(-3 * ps, -5 * ps, 6 * ps, 1 * ps);
+                pCtx.fillStyle = "#ffdbac";
+                pCtx.fillRect(-3 * ps, -4 * ps, 6 * ps, 3 * ps);
+                pCtx.fillStyle = "#000000";
+                pCtx.fillRect(-2 * ps, -3 * ps, 1 * ps, 1 * ps);
+                pCtx.fillRect(1 * ps, -3 * ps, 1 * ps, 1 * ps);
+                pCtx.fillStyle = "#3a86ff";
+                pCtx.fillRect(-4 * ps, -1 * ps, 8 * ps, 5 * ps);
+                pCtx.fillStyle = "#ffcc00";
+                pCtx.fillRect(-1 * ps, -1 * ps, 2 * ps, 3 * ps);
+            } else if (skinId === 1) {
+                pCtx.fillStyle = "#ff3333";
+                pCtx.fillRect(-4 * ps, -6 * ps, 8 * ps, 1 * ps);
+                pCtx.fillStyle = "#1e293b";
+                pCtx.fillRect(-4 * ps, -5 * ps, 8 * ps, 3 * ps);
+                pCtx.fillStyle = "#ffffff";
+                pCtx.fillRect(-2 * ps, -4 * ps, 1 * ps, 1 * ps);
+                pCtx.fillRect(1 * ps, -4 * ps, 1 * ps, 1 * ps);
+                pCtx.fillStyle = "#1e293b";
+                pCtx.fillRect(-4 * ps, -2 * ps, 8 * ps, 6 * ps);
+                pCtx.fillStyle = "#06b6d4";
+                pCtx.fillRect(-3 * ps, 0, 6 * ps, 1 * ps);
+            } else if (skinId === 2) {
+                pCtx.fillStyle = "#64748b";
+                pCtx.fillRect(-4 * ps, -6 * ps, 8 * ps, 2 * ps);
+                pCtx.fillStyle = "#22c55e";
+                pCtx.fillRect(-3 * ps, -4 * ps, 6 * ps, 2 * ps);
+                pCtx.fillStyle = "#475569";
+                pCtx.fillRect(-4 * ps, -2 * ps, 8 * ps, 6 * ps);
+                pCtx.fillStyle = "#4ade80";
+                pCtx.fillRect(-1 * ps, -1 * ps, 2 * ps, 4 * ps);
+            }
+
+            pCtx.restore();
+        }
+
         function renderShop() {
             shopCoinsVal.innerText = totalCoins;
             coinsValElement.innerText = totalCoins;
@@ -500,14 +567,23 @@
                 let itemDiv = document.createElement("div");
                 itemDiv.className = "skin-item";
                 itemDiv.innerHTML = `
-                    <div class="skin-info">
-                        <div class="skin-name">${skin.name}</div>
-                        <div class="skin-price">${skin.price === 0 ? 'Grátis' : skin.price + ' moedas'}</div>
+                    <div class="skin-left">
+                        <canvas class="skin-preview-canvas" width="36" height="36" data-skin="${skin.id}"></canvas>
+                        <div class="skin-info">
+                            <div class="skin-name">${skin.name}</div>
+                            <div class="skin-price">${skin.price === 0 ? 'Grátis' : skin.price + ' moedas'}</div>
+                        </div>
                     </div>
                     <button class="skin-action-btn ${btnClass}" data-id="${skin.id}">${btnText}</button>
                 `;
 
                 skinListContainer.appendChild(itemDiv);
+            });
+
+            // Desenha as miniaturas em canvas das skins
+            document.querySelectorAll(".skin-preview-canvas").forEach(canvasEl => {
+                let skinId = parseInt(canvasEl.getAttribute("data-skin"));
+                drawCharacterPreview(canvasEl, skinId);
             });
 
             document.querySelectorAll(".skin-action-btn").forEach(btn => {
@@ -580,16 +656,6 @@
                 p.moveSpeed = 1.2 + Math.random() * 0.8;
             }
 
-            if (Math.random() < 0.40) {
-                coins.push({
-                    parentPlatform: p,
-                    offsetX: platformWidth / 2 - 8,
-                    offsetY: -35,
-                    width: 16,
-                    height: 16
-                });
-            }
-
             return p;
         }
 
@@ -599,9 +665,28 @@
             let firstPlat = { x: canvas.width / 2 - 40, y: 520, width: platformWidth, height: platformHeight, isMoving: false, isFragile: false, broken: false };
             platforms.push(firstPlat);
 
+            // Adiciona moeda na primeira plataforma inicial
+            coins.push({
+                parentPlatform: firstPlat,
+                offsetX: platformWidth / 2 - 8,
+                offsetY: -35,
+                width: 16,
+                height: 16
+            });
+
             let currentY = 440;
             while (currentY > -50) {
-                platforms.push(createPlatform(currentY));
+                let p = createPlatform(currentY);
+                platforms.push(p);
+                if (Math.random() < 0.40) {
+                    coins.push({
+                        parentPlatform: p,
+                        offsetX: platformWidth / 2 - 8,
+                        offsetY: -35,
+                        width: 16,
+                        height: 16
+                    });
+                }
                 currentY -= 75 + Math.random() * 25;
             }
         }
@@ -702,6 +787,7 @@
                 });
             }
 
+            // Atualiza a posição X e Y das moedas amarradas nas plataformas ativas
             coins.forEach(coin => {
                 if (coin.parentPlatform) {
                     coin.x = coin.parentPlatform.x + coin.offsetX;
@@ -709,6 +795,7 @@
                 }
             });
 
+            // Verificação de colisão com as moedas
             for (let i = coins.length - 1; i >= 0; i--) {
                 let coin = coins[i];
                 if (
@@ -742,6 +829,7 @@
                 platforms.forEach(plat => plat.y += diff);
             }
 
+            // Reciclagem de plataformas e recriação limpa de moedas
             platforms.forEach(plat => {
                 if (plat.y > canvas.height) {
                     plat.y = -20;
@@ -763,6 +851,10 @@
                         plat.isMoving = false;
                     }
 
+                    // Remove qualquer moeda antiga órfã desta plataforma
+                    coins = coins.filter(c => c.parentPlatform !== plat);
+
+                    // Cria nova moeda acoplada com 40% de chance
                     if (Math.random() < 0.40) {
                         coins.push({
                             parentPlatform: plat,
@@ -775,6 +867,7 @@
                 }
             });
 
+            // Limpeza de moedas cujas nuvens quebraram ou saíram da tela
             coins = coins.filter(coin => coin.y < canvas.height + 50 && !coin.parentPlatform.broken);
 
             if (player.y > canvas.height) {
