@@ -304,7 +304,7 @@
                 <button id="shop-icon-btn" class="shop-btn-style" title="Loja de Skins">🛒</button>
             </div>
 
-            <div class="version-watermark">v1.3.0-beta</div>
+            <div class="version-watermark">v1.4.0-beta</div>
         </div>
 
         <div id="gameover-modal">
@@ -317,7 +317,7 @@
                 <button id="gameover-shop-btn" class="shop-btn-style" title="Loja de Skins">🛒</button>
             </div>
 
-            <div class="version-watermark">v1.3.0-beta</div>
+            <div class="version-watermark">v1.4.0-beta</div>
         </div>
 
         <div id="shop-modal">
@@ -580,7 +580,6 @@
                 skinListContainer.appendChild(itemDiv);
             });
 
-            // Desenha as miniaturas em canvas das skins
             document.querySelectorAll(".skin-preview-canvas").forEach(canvasEl => {
                 let skinId = parseInt(canvasEl.getAttribute("data-skin"));
                 drawCharacterPreview(canvasEl, skinId);
@@ -665,7 +664,7 @@
             let firstPlat = { x: canvas.width / 2 - 40, y: 520, width: platformWidth, height: platformHeight, isMoving: false, isFragile: false, broken: false };
             platforms.push(firstPlat);
 
-            // Adiciona moeda na primeira plataforma inicial
+            // Adiciona moeda na primeira plataforma
             coins.push({
                 parentPlatform: firstPlat,
                 offsetX: platformWidth / 2 - 8,
@@ -678,7 +677,7 @@
             while (currentY > -50) {
                 let p = createPlatform(currentY);
                 platforms.push(p);
-                if (Math.random() < 0.40) {
+                if (Math.random() < 0.45) {
                     coins.push({
                         parentPlatform: p,
                         offsetX: platformWidth / 2 - 8,
@@ -787,7 +786,7 @@
                 });
             }
 
-            // Atualiza a posição X e Y das moedas amarradas nas plataformas ativas
+            // Atualiza a posição X e Y das moedas vinculadas às plataformas
             coins.forEach(coin => {
                 if (coin.parentPlatform) {
                     coin.x = coin.parentPlatform.x + coin.offsetX;
@@ -795,7 +794,7 @@
                 }
             });
 
-            // Verificação de colisão com as moedas
+            // Coleta de moedas
             for (let i = coins.length - 1; i >= 0; i--) {
                 let coin = coins[i];
                 if (
@@ -829,7 +828,7 @@
                 platforms.forEach(plat => plat.y += diff);
             }
 
-            // Reciclagem de plataformas e recriação limpa de moedas
+            // RECICLAGEM DAS PLATAFORMAS E RECRIAÇÃO DINÂMICA DE MOEDAS EM TODAS AS NOVAS ALTURAS
             platforms.forEach(plat => {
                 if (plat.y > canvas.height) {
                     plat.y = -20;
@@ -851,11 +850,11 @@
                         plat.isMoving = false;
                     }
 
-                    // Remove qualquer moeda antiga órfã desta plataforma
+                    // Remove qualquer moeda antiga órfã associada a esta plataforma
                     coins = coins.filter(c => c.parentPlatform !== plat);
 
-                    // Cria nova moeda acoplada com 40% de chance
-                    if (Math.random() < 0.40) {
+                    // Sorteia nova moeda com 45% de chance para qualquer nova plataforma gerada no topo
+                    if (Math.random() < 0.45) {
                         coins.push({
                             parentPlatform: plat,
                             offsetX: platformWidth / 2 - 8,
@@ -867,7 +866,7 @@
                 }
             });
 
-            // Limpeza de moedas cujas nuvens quebraram ou saíram da tela
+            // Limpa moedas perdidas ou de plataformas quebradas
             coins = coins.filter(coin => coin.y < canvas.height + 50 && !coin.parentPlatform.broken);
 
             if (player.y > canvas.height) {
