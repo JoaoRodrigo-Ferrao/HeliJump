@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jump Hop - Salto Infinito</title>
+    <title>Sky Hop - Pixel Art</title>
     <style>
         * {
             box-sizing: border-box;
@@ -37,10 +37,12 @@
         }
 
         canvas {
-            background: linear-gradient(to bottom, #1a1a2e, #16213e);
+            background: linear-gradient(to bottom, #4a90e2, #87ceeb);
             width: 100%;
             height: 100%;
             object-fit: contain;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
         }
 
         #ui-layer {
@@ -51,10 +53,10 @@
             padding: 0 20px;
             display: flex;
             justify-content: space-between;
-            color: white;
+            color: #ffffff;
             font-size: 18px;
             font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            text-shadow: 2px 2px 2px rgba(0,0,0,0.6);
             pointer-events: none;
             z-index: 5;
         }
@@ -66,7 +68,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(15, 15, 26, 0.95);
+            background: rgba(30, 100, 180, 0.95);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -78,20 +80,22 @@
         }
 
         #start-modal h1 {
-            font-size: 28px;
-            color: #4ecca3;
+            font-size: 30px;
+            color: #ffe600;
             margin-bottom: 15px;
+            text-shadow: 3px 3px 0px #d4380d;
         }
 
         #start-modal p {
             font-size: 16px;
-            color: #dddddd;
+            color: #f0f0f0;
             margin-bottom: 12px;
             line-height: 1.4;
         }
 
         .controls-info {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(0, 0, 0, 0.2);
+            border: 2px dashed rgba(255, 255, 255, 0.4);
             border-radius: 10px;
             padding: 15px;
             margin: 15px 0;
@@ -100,15 +104,20 @@
 
         #start-btn {
             margin-top: 15px;
-            background: #4ecca3;
-            color: #111;
-            border: none;
+            background: #ffcc00;
+            color: #532d00;
+            border: 3px solid #ff9900;
             padding: 14px 28px;
             font-size: 18px;
             font-weight: bold;
-            border-radius: 25px;
+            border-radius: 12px;
             cursor: pointer;
-            box-shadow: 0 4px 10px rgba(78, 204, 163, 0.4);
+            box-shadow: 0 4px 0 #cc7a00;
+        }
+
+        #start-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #cc7a00;
         }
     </style>
 </head>
@@ -126,8 +135,8 @@
 
         <!-- Modal Inicial -->
         <div id="start-modal">
-            <h1>Jump Hop!</h1>
-            <p>Suba o máximo de plataformas que conseguir e supere seu recorde!</p>
+            <h1>SKY HOP</h1>
+            <p>Suba pelas nuvens e conquiste o topo do céu!</p>
             
             <div class="controls-info">
                 <p><strong>Como Jogar no Celular:</strong></p>
@@ -135,7 +144,7 @@
                 <p>👉 Toque na <strong>direita</strong> para mover à direita</p>
             </div>
 
-            <button id="start-btn">TOQUE PARA JOGAR</button>
+            <button id="start-btn">JOGAR AGORA</button>
         </div>
     </div>
 
@@ -172,7 +181,7 @@
             osc.stop(audioCtx.currentTime + 0.12);
         }
 
-        // Som de Alerta a cada 100 pontos (estilo dinossauro do Chrome)
+        // Som de Alerta a cada 100 pontos
         function playMilestoneSound() {
             if (!audioCtx) return;
             const now = audioCtx.currentTime;
@@ -200,30 +209,29 @@
             osc2.stop(now + 0.18);
         }
 
-        // Física e Configurações
+        // Física do Jogo
         const GRAVITY = 0.38;
         const JUMP_FORCE = -9.8;
-        const ACCELERATION = 0.7; // Suavidade no arranque
-        const FRICTION = 0.86;    // Suavidade na desaceleração
+        const MOVE_SPEED = 5.5;
 
         // Estado do Jogador
         let player = {
             x: canvas.width / 2 - 18,
             y: 400,
             width: 36,
-            height: 42,
+            height: 38,
             vx: 0,
             vy: 0,
             facingRight: true
         };
 
         let platforms = [];
-        const platformWidth = 75;
-        const platformHeight = 16;
+        const platformWidth = 80;
+        const platformHeight = 20;
         let score = 0;
         let displayScore = 0;
         let lastMilestone = 0;
-        let highScore = localStorage.getItem("jump_high_score") || 0;
+        let highScore = localStorage.getItem("sky_hop_high_score") || 0;
         let gameStarted = false;
         let gameOver = false;
 
@@ -235,7 +243,8 @@
 
         function initPlatforms() {
             platforms = [];
-            platforms.push({ x: canvas.width / 2 - 37, y: 520, width: platformWidth, height: platformHeight });
+            // Plataforma inicial abaixo do jogador
+            platforms.push({ x: canvas.width / 2 - 40, y: 520, width: platformWidth, height: platformHeight });
 
             let currentY = 440;
             while (currentY > -50) {
@@ -299,15 +308,15 @@
         function update() {
             if (!gameStarted || gameOver) return;
 
-            // Movimentação Suave (Aceleração e Inércia)
+            // Movimentação original (velocidade fixa imediata)
             if (leftPressed) {
-                player.vx -= ACCELERATION;
+                player.vx = -MOVE_SPEED;
                 player.facingRight = false;
             } else if (rightPressed) {
-                player.vx += ACCELERATION;
+                player.vx = MOVE_SPEED;
                 player.facingRight = true;
             } else {
-                player.vx *= FRICTION;
+                player.vx = 0;
             }
 
             player.x += player.vx;
@@ -320,13 +329,13 @@
             player.vy += GRAVITY;
             player.y += player.vy;
 
-            // Colisão com plataformas (apenas descendo)
+            // Colisão com plataformas em nuvem (apenas descendo)
             if (player.vy > 0) {
                 platforms.forEach(plat => {
                     if (
                         player.x + player.width - 8 > plat.x &&
                         player.x + 8 < plat.x + plat.width &&
-                        player.y + player.height >= plat.y &&
+                        player.y + player.height >= plat.y + 4 &&
                         player.y + player.height <= plat.y + plat.height + player.vy
                     ) {
                         player.vy = JUMP_FORCE;
@@ -369,7 +378,7 @@
                 gameOver = true;
                 if (displayScore > highScore) {
                     highScore = displayScore;
-                    localStorage.setItem("jump_high_score", highScore);
+                    localStorage.setItem("sky_hop_high_score", highScore);
                     highScoreValElement.innerText = highScore;
                 }
             }
@@ -389,89 +398,94 @@
             initPlatforms();
         }
 
-        // Desenhar o Boneco em Vetor/Canvas
-        function drawPlayer() {
+        // Desenhar Nuvem em Pixel Art
+        function drawPixelCloud(x, y, w, h) {
+            const ps = 4; // Bloco de pixel
+            ctx.fillStyle = "#ffffff";
+            // Base da nuvem
+            ctx.fillRect(x + ps, y + ps, w - (ps * 2), h - (ps * 2));
+            ctx.fillRect(x, y + (ps * 2), w, h - (ps * 4));
+            // Topo fofinho em pixel
+            ctx.fillRect(x + (ps * 2), y, w - (ps * 4), ps);
+            ctx.fillRect(x + (ps * 3), y - ps, w - (ps * 6), ps);
+
+            // Sombra inferior da nuvem para dar efeito pixel art
+            ctx.fillStyle = "#b0d4f1";
+            ctx.fillRect(x + ps, y + h - (ps * 2), w - (ps * 2), ps);
+        }
+
+        // Desenhar o Boneco em Pixel Art
+        function drawPixelArtPlayer() {
             ctx.save();
             ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
             
-            // Inverter para olhar à esquerda ou à direita
             if (!player.facingRight) {
                 ctx.scale(-1, 1);
             }
 
-            // Corpo/Camisa
-            ctx.fillStyle = "#ff5722";
-            ctx.beginPath();
-            ctx.roundRect(-12, -2, 24, 22, 6);
-            ctx.fill();
+            const ps = 3; // Tamanho de cada pixel
 
-            // Cabeça
-            ctx.fillStyle = "#ffccaa";
-            ctx.beginPath();
-            ctx.arc(0, -12, 12, 0, Math.PI * 2);
-            ctx.fill();
+            // Corpo (Amarelo)
+            ctx.fillStyle = "#ffcc00";
+            ctx.fillRect(-4 * ps, -3 * ps, 8 * ps, 7 * ps);
 
-            // Cabelo
-            ctx.fillStyle = "#4a2c11";
-            ctx.beginPath();
-            ctx.arc(0, -15, 12, Math.PI, 0);
-            ctx.fill();
-
-            // Olhos (Virados para a direção do movimento)
-            ctx.fillStyle = "#111";
-            ctx.beginPath();
-            ctx.arc(4, -13, 2.5, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Mochila de Salto
-            ctx.fillStyle = "#333";
-            ctx.fillRect(-16, -2, 5, 16);
-
-            // Pés/Sapatos
+            // Capacete / Chapéu (Vermelho com detalhe branco)
+            ctx.fillStyle = "#ff3333";
+            ctx.fillRect(-5 * ps, -5 * ps, 10 * ps, 2 * ps);
+            ctx.fillRect(-3 * ps, -6 * ps, 6 * ps, 1 * ps);
             ctx.fillStyle = "#ffffff";
-            ctx.fillRect(-10, 18, 8, 5);
-            ctx.fillRect(2, 18, 8, 5);
+            ctx.fillRect(-1 * ps, -5 * ps, 2 * ps, 1 * ps);
+
+            // Olhos
+            ctx.fillStyle = "#000000";
+            ctx.fillRect(0, -2 * ps, 2 * ps, 2 * ps);
+
+            // Pés
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(-3 * ps, 4 * ps, 2 * ps, 2 * ps);
+            ctx.fillRect(1 * ps, 4 * ps, 2 * ps, 2 * ps);
 
             ctx.restore();
         }
 
         function draw() {
-            // Fundo
-            ctx.fillStyle = "#12121c";
+            // Céu com gradiente desenhado no canvas
+            let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            grad.addColorStop(0, "#3a86ff");
+            grad.addColorStop(0.5, "#6ea8fe");
+            grad.addColorStop(1, "#c2e9fb");
+            ctx.fillStyle = grad;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Desenhar Plataformas
+            // Desenhar Nuvens (Plataformas)
             platforms.forEach(plat => {
-                ctx.fillStyle = "#4ecca3";
-                ctx.beginPath();
-                ctx.roundRect(plat.x, plat.y, plat.width, plat.height, 8);
-                ctx.fill();
+                drawPixelCloud(plat.x, plat.y, plat.width, plat.height);
             });
 
             // Desenhar Boneco
-            drawPlayer();
+            drawPixelArtPlayer();
 
             // Tela de Game Over
             if (gameOver) {
-                ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+                ctx.fillStyle = "rgba(10, 30, 60, 0.85)";
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                ctx.fillStyle = "#ffffff";
+                ctx.fillStyle = "#ffe600";
                 ctx.font = "bold 30px sans-serif";
                 ctx.textAlign = "center";
-                ctx.fillText("FIM DE JOGO", canvas.width / 2, canvas.height / 2 - 40);
+                ctx.fillText("FIM DE JOGO", canvas.width / 2, canvas.height / 2 - 50);
 
                 ctx.font = "18px sans-serif";
-                ctx.fillStyle = "#4ecca3";
-                ctx.fillText(`Pontuação: ${displayScore}`, canvas.width / 2, canvas.height / 2 + 5);
+                ctx.fillStyle = "#ffffff";
+                ctx.fillText(`Pontuação: ${displayScore}`, canvas.width / 2, canvas.height / 2 - 5);
 
-                ctx.fillStyle = "#ffbb33";
+                ctx.fillStyle = "#ffcc00";
                 ctx.font = "16px sans-serif";
-                ctx.fillText(`Melhor Recorde: ${highScore}`, canvas.width / 2, canvas.height / 2 + 35);
+                ctx.fillText(`Melhor Recorde: ${highScore}`, canvas.width / 2, canvas.height / 2 + 25);
 
-                ctx.fillStyle = "#aaaaaa";
-                ctx.font = "14px sans-serif";
-                ctx.fillText("Toque na tela para jogar novamente", canvas.width / 2, canvas.height / 2 + 80);
+                ctx.fillStyle = "#c2e9fb";
+                ctx.font = "13px sans-serif";
+                ctx.fillText("Toque na tela para jogar novamente", canvas.width / 2, canvas.height / 2 + 75);
             }
         }
 
