@@ -528,7 +528,8 @@
                 broken: false
             };
 
-            if (displayScore >= 400 && Math.random() < 0.25) {
+            // Nuvens quebradiças começam a aparecer logo após 40 pontos na tela
+            if (displayScore >= 40 && Math.random() < 0.25) {
                 p.isFragile = true;
             }
 
@@ -697,14 +698,14 @@
                     plat.direction = Math.random() < 0.5 ? 1 : -1;
                     plat.broken = false;
 
-                    if (displayScore >= 400) {
+                    if (displayScore >= 40) {
                         plat.isFragile = Math.random() < 0.30;
                     }
 
-                    if (displayScore >= 600) {
+                    if (displayScore >= 300) {
                         plat.isMoving = Math.random() < 0.50;
                         plat.moveSpeed = 2.2 + Math.random() * 1.5;
-                    } else if (displayScore >= 300) {
+                    } else if (displayScore >= 150) {
                         plat.isMoving = Math.random() < 0.30;
                         plat.moveSpeed = 1.2 + Math.random() * 0.8;
                     } else {
@@ -828,7 +829,8 @@
         }
 
         function draw() {
-            let sunsetProgress = Math.min(displayScore / 1000, 1);
+            // Agora o céu começa a escurecer mais rápido: atinge o entardecer/noite completo ao chegar em 400 pontos
+            let sunsetProgress = Math.min(displayScore / 400, 1);
             
             let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
             if (sunsetProgress < 0.5) {
