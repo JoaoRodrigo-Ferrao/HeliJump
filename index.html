@@ -49,8 +49,8 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 50px;
-            padding: 0 20px;
+            height: 60px;
+            padding: 12px 20px 0 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -528,15 +528,16 @@
                 broken: false
             };
 
-            // Nuvens quebradiças começam a aparecer logo após 40 pontos na tela
             if (displayScore >= 40 && Math.random() < 0.25) {
                 p.isFragile = true;
             }
 
             if (Math.random() < 0.30 && (lastCoinY === 0 || Math.abs(y - lastCoinY) > 220)) {
+                // Criamos a moeda associando-a diretamente à plataforma (parentPlatform)
                 coins.push({
-                    x: p.x + p.width / 2 - 8,
-                    y: y - 35,
+                    parentPlatform: p,
+                    offsetX: platformWidth / 2 - 8,
+                    offsetY: -35,
                     width: 16,
                     height: 16
                 });
@@ -550,7 +551,8 @@
             platforms = [];
             coins = [];
             lastCoinY = 0;
-            platforms.push({ x: canvas.width / 2 - 40, y: 520, width: platformWidth, height: platformHeight, isMoving: false, isFragile: false, broken: false });
+            let firstPlat = { x: canvas.width / 2 - 40, y: 520, width: platformWidth, height: platformHeight, isMoving: false, isFragile: false, broken: false };
+            platforms.push(firstPlat);
 
             let currentY = 440;
             while (currentY > -50) {
@@ -645,17 +647,26 @@
                         player.y + player.height >= plat.y + 4 &&
                         player.y + player.height <= plat.y + plat.height + player.vy
                     ) {
+                        player.vy = JUMP_FORCE;
+                        playJumpSound();
+
                         if (plat.isFragile) {
                             plat.broken = true;
                             playBreakSound();
-                        } else {
-                            player.vy = JUMP_FORCE;
-                            playJumpSound();
                         }
                     }
                 });
             }
 
+            // Atualiza a posição X e Y das moedas com base na nuvem a qual pertencem
+            coins.forEach(coin => {
+                if (coin.parentPlatform) {
+                    coin.x = coin.parentPlatform.x + coin.offsetX;
+                    coin.y = coin.parentPlatform.y + coin.offsetY;
+                }
+            });
+
+            // Verificação de colisão com as moedas
             for (let i = coins.length - 1; i >= 0; i--) {
                 let coin = coins[i];
                 if (
@@ -687,7 +698,6 @@
                 }
 
                 platforms.forEach(plat => plat.y += diff);
-                coins.forEach(coin => coin.y += diff);
                 lastCoinY += diff;
             }
 
@@ -712,10 +722,12 @@
                         plat.isMoving = false;
                     }
 
+                    // Se a plataforma ganha nova moeda ao reciclar, vinculamos ela a esta plataforma
                     if (Math.random() < 0.30 && (lastCoinY === 0 || Math.abs(plat.y - lastCoinY) > 220)) {
                         coins.push({
-                            x: plat.x + plat.width / 2 - 8,
-                            y: plat.y - 35,
+                            parentPlatform: plat,
+                            offsetX: platformWidth / 2 - 8,
+                            offsetY: -35,
                             width: 16,
                             height: 16
                         });
@@ -724,7 +736,8 @@
                 }
             });
 
-            coins = coins.filter(coin => coin.y < canvas.height + 50);
+            // Remove moedas que saíram da tela por baixo ou cuja nuvem mãe quebrou/sumiu
+            coins = coins.filter(coin => coin.y < canvas.height + 50 && !coin.parentPlatform.broken);
 
             if (player.y > canvas.height) {
                 gameOver = true;
@@ -829,7 +842,6 @@
         }
 
         function draw() {
-            // Agora o céu começa a escurecer mais rápido: atinge o entardecer/noite completo ao chegar em 400 pontos
             let sunsetProgress = Math.min(displayScore / 400, 1);
             
             let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
