@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sky Hop - Loja e Skins</title>
+    <title>Sky Hop - Pixel Art</title>
     <style>
         * {
             box-sizing: border-box;
@@ -63,7 +63,6 @@
             z-index: 5;
         }
 
-        /* Modal Inicial (Menu Principal) */
         #start-modal {
             position: absolute;
             top: 0;
@@ -128,7 +127,6 @@
             box-shadow: 0 2px 0 #cc7a00;
         }
 
-        /* Botão de Loja (Carrinho) */
         #shop-icon-btn {
             background: #22c55e;
             color: white;
@@ -149,7 +147,6 @@
             box-shadow: 0 2px 0 #166534;
         }
 
-        /* Modal da Loja */
         #shop-modal {
             position: absolute;
             top: 0;
@@ -254,20 +251,17 @@
 <body>
 
     <div id="game-container">
-        <!-- UI com Pontuação, Moedas e Recorde -->
         <div id="ui-layer">
             <div>Pontos: <span id="scoreVal">0</span></div>
             <div>🪙 <span id="coinsVal">0</span></div>
             <div>Recorde: <span id="highScoreVal">0</span></div>
         </div>
 
-        <!-- Canvas do Jogo -->
         <canvas id="gameCanvas" width="400" height="600"></canvas>
 
-        <!-- Menu Inicial -->
         <div id="start-modal">
             <h1>SKY HOP</h1>
-            <p>Suba pelas nuvens, colete moedas espaçadas e conquiste o topo!</p>
+            <p>Suba pelas nuvens, colete moedas e conquiste o topo!</p>
             
             <div class="controls-info">
                 <p>👈 Toque na <strong>esquerda</strong> | 👉 Toque na <strong>direita</strong></p>
@@ -279,14 +273,11 @@
             </div>
         </div>
 
-        <!-- Modal da Loja de Skins -->
         <div id="shop-modal">
             <h2>LOJA DE SKINS</h2>
             <div class="shop-balance">Suas Moedas: 🪙 <span id="shopCoinsVal">0</span></div>
             
-            <div class="skin-list" id="skinListContainer">
-                <!-- Gerado via JavaScript -->
-            </div>
+            <div class="skin-list" id="skinListContainer"></div>
 
             <button id="close-shop-btn">VOLTAR</button>
         </div>
@@ -306,7 +297,6 @@
         const shopCoinsVal = document.getElementById("shopCoinsVal");
         const skinListContainer = document.getElementById("skinListContainer");
 
-        // Sistema de Áudio Sintetizado (Web Audio API)
         let audioCtx = null;
 
         function initAudio() {
@@ -315,7 +305,6 @@
             }
         }
 
-        // Som de Pulo
         function playJumpSound() {
             if (!audioCtx) return;
             const osc = audioCtx.createOscillator();
@@ -331,7 +320,6 @@
             osc.stop(audioCtx.currentTime + 0.12);
         }
 
-        // Som de Coleta de Moeda
         function playCoinSound() {
             if (!audioCtx) return;
             const now = audioCtx.currentTime;
@@ -348,7 +336,6 @@
             osc.stop(now + 0.2);
         }
 
-        // Som de Marco (100 pontos)
         function playMilestoneSound() {
             if (!audioCtx) return;
             const now = audioCtx.currentTime;
@@ -375,7 +362,6 @@
             osc2.stop(now + 0.18);
         }
 
-        // Som de Game Over
         function playGameOverSound() {
             if (!audioCtx) return;
             const now = audioCtx.currentTime;
@@ -395,14 +381,12 @@
             osc.stop(now + 0.4);
         }
 
-        // Configuração das Skins
         const skinsData = [
             { id: 0, name: "Clássico Amarelo", price: 0 },
             { id: 1, name: "Ninja Azul", price: 50 },
             { id: 2, name: "Robô Cyber", price: 100 }
         ];
 
-        // Carregar salvamentos do localStorage
         let totalCoins = parseInt(localStorage.getItem("sky_hop_coins")) || 0;
         let highScore = parseInt(localStorage.getItem("sky_hop_high_score")) || 0;
         let unlockedSkins = JSON.parse(localStorage.getItem("sky_hop_unlocked")) || [0];
@@ -411,7 +395,6 @@
         highScoreValElement.innerText = highScore;
         coinsValElement.innerText = totalCoins;
 
-        // Física e Estado do Jogador
         const GRAVITY = 0.38;
         const JUMP_FORCE = -9.8;
         const MOVE_SPEED = 5.5;
@@ -436,9 +419,8 @@
         let lastMilestone = 0;
         let gameStarted = false;
         let gameOver = false;
-        let lastCoinY = 0; // Usado para garantir grande distância entre as moedas
+        let lastCoinY = 0;
 
-        // Renderizar Loja
         function renderShop() {
             shopCoinsVal.innerText = totalCoins;
             skinListContainer.innerHTML = "";
@@ -479,19 +461,16 @@
                 skinListContainer.appendChild(itemDiv);
             });
 
-            // Adicionar eventos aos botões da loja
             document.querySelectorAll(".skin-action-btn").forEach(btn => {
                 btn.addEventListener("click", (e) => {
                     let skinId = parseInt(e.target.getAttribute("data-id"));
                     let skin = skinsData.find(s => s.id === skinId);
 
                     if (unlockedSkins.includes(skinId)) {
-                        // Equipar
                         player.skin = skinId;
                         localStorage.setItem("sky_hop_current_skin", skinId);
                         renderShop();
                     } else {
-                        // Comprar se tiver saldo
                         if (totalCoins >= skin.price) {
                             totalCoins -= skin.price;
                             coinsValElement.innerText = totalCoins;
@@ -511,7 +490,6 @@
             });
         }
 
-        // Eventos da Loja
         shopIconBtn.addEventListener("click", () => {
             initAudio();
             renderShop();
@@ -533,12 +511,14 @@
                 direction: 1
             };
 
-            // Moedas bem mais espaçadas (distância vertical mínima de 220 pixels entre uma moeda e outra)
             let coinChance = Math.random();
+            // Moeda posicionada mais acima da nuvem (y - 36) para evitar falso toque na plataforma
             if (coinChance < 0.25 && (lastCoinY === 0 || Math.abs(y - lastCoinY) > 220)) {
                 coins.push({
                     x: p.x + p.width / 2 - 8,
-                    y: y - 24,
+                    y: y - 36,
+                    width: 16,
+                    height: 16,
                     collected: false
                 });
                 lastCoinY = y;
@@ -560,7 +540,9 @@
             }
         }
 
-        // Toque Mobile
+        let leftPressed = false;
+        let rightPressed = false;
+
         window.addEventListener("touchstart", (e) => {
             if (!gameStarted || shopModal.style.display === "flex") return;
             if (gameOver) {
@@ -583,7 +565,6 @@
             rightPressed = false;
         });
 
-        // Teclado PC
         window.addEventListener("keydown", (e) => {
             if (!gameStarted || shopModal.style.display === "flex") return;
             if (e.key === "Enter" && gameOver) {
@@ -627,7 +608,6 @@
             player.vy += GRAVITY;
             player.y += player.vy;
 
-            // Movimento das plataformas móveis
             platforms.forEach(plat => {
                 if (plat.isMoving) {
                     plat.x += plat.moveSpeed * plat.direction;
@@ -637,7 +617,6 @@
                 }
             });
 
-            // Colisão com plataformas
             if (player.vy > 0) {
                 platforms.forEach(plat => {
                     if (
@@ -652,13 +631,13 @@
                 });
             }
 
-            // Coleta de Moedas
+            // Verificação estrita de colisão com a moeda (só coleta se o boneco encostar nela)
             coins.forEach(coin => {
                 if (!coin.collected) {
                     if (
-                        player.x < coin.x + 16 &&
+                        player.x < coin.x + coin.width &&
                         player.x + player.width > coin.x &&
-                        player.y < coin.y + 16 &&
+                        player.y < coin.y + coin.height &&
                         player.y + player.height > coin.y
                     ) {
                         coin.collected = true;
@@ -670,7 +649,6 @@
                 }
             });
 
-            // Câmera subindo
             let cameraThreshold = canvas.height * 0.45;
             if (player.y < cameraThreshold) {
                 let diff = cameraThreshold - player.y;
@@ -690,7 +668,6 @@
                 lastCoinY += diff;
             }
 
-            // Reciclar plataformas e moedas
             platforms.forEach((plat, index) => {
                 if (plat.y > canvas.height) {
                     plat.y = -20;
@@ -707,22 +684,20 @@
                         plat.isMoving = false;
                     }
 
-                    // Tentar reciclar moeda respeitando grande espaçamento
                     if (coins[index]) {
                         let coinChance = Math.random();
                         if (coinChance < 0.25 && (lastCoinY === 0 || Math.abs(plat.y - lastCoinY) > 220)) {
                             coins[index].collected = false;
                             coins[index].x = plat.x + plat.width / 2 - 8;
-                            coins[index].y = plat.y - 24;
+                            coins[index].y = plat.y - 36;
                             lastCoinY = plat.y;
                         } else {
-                            coins[index].collected = true; // Mantém invisível se não for gerada
+                            coins[index].collected = true;
                         }
                     }
                 }
             });
 
-            // Game Over
             if (player.y > canvas.height) {
                 gameOver = true;
                 playGameOverSound();
@@ -748,7 +723,6 @@
             initPlatforms();
         }
 
-        // Desenhar Nuvem
         function drawPixelCloud(x, y, w, h, isMoving) {
             const ps = 4;
             ctx.fillStyle = isMoving ? "#e0f2fe" : "#ffffff";
@@ -761,7 +735,6 @@
             ctx.fillRect(x + ps, y + h - (ps * 2), w - (ps * 2), ps);
         }
 
-        // Desenhar Moeda
         function drawPixelCoin(x, y) {
             const ps = 2;
             ctx.fillStyle = "#ffcc00";
@@ -773,7 +746,6 @@
             ctx.fillRect(x + (5 * ps), y + ps, ps, 4 * ps);
         }
 
-        // Desenhar Boneco com as Skins
         function drawPixelArtPlayer() {
             ctx.save();
             ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
@@ -785,7 +757,6 @@
             const ps = 3;
 
             if (player.skin === 0) {
-                // Clássico Amarelo
                 ctx.fillStyle = "#ffcc00";
                 ctx.fillRect(-4 * ps, -3 * ps, 8 * ps, 7 * ps);
                 ctx.fillStyle = "#ff3333";
@@ -800,7 +771,6 @@
                 ctx.fillRect(1 * ps, 4 * ps, 2 * ps, 2 * ps);
             } 
             else if (player.skin === 1) {
-                // Ninja Azul
                 ctx.fillStyle = "#3366ff";
                 ctx.fillRect(-4 * ps, -3 * ps, 8 * ps, 7 * ps);
                 ctx.fillStyle = "#1a3399";
@@ -814,7 +784,6 @@
                 ctx.fillRect(1 * ps, 4 * ps, 2 * ps, 2 * ps);
             } 
             else if (player.skin === 2) {
-                // Robô Cyber
                 ctx.fillStyle = "#cccccc";
                 ctx.fillRect(-4 * ps, -3 * ps, 8 * ps, 7 * ps);
                 ctx.fillStyle = "#999999";
@@ -830,7 +799,6 @@
         }
 
         function draw() {
-            // Céu
             let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
             grad.addColorStop(0, "#3a86ff");
             grad.addColorStop(0.5, "#6ea8fe");
@@ -838,22 +806,18 @@
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Nuvens
             platforms.forEach(plat => {
                 drawPixelCloud(plat.x, plat.y, plat.width, plat.height, plat.isMoving);
             });
 
-            // Moedas
             coins.forEach(coin => {
                 if (!coin.collected) {
                     drawPixelCoin(coin.x, coin.y);
                 }
             });
 
-            // Boneco
             drawPixelArtPlayer();
 
-            // Tela de Game Over
             if (gameOver) {
                 ctx.fillStyle = "rgba(10, 30, 60, 0.85)";
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
